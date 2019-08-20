@@ -9,7 +9,7 @@ import torch
 import torch.distributed as dist
 import torch.optim as optim
 
-from polyaxon_helper import get_data_paths
+from polyaxon_client.tracking import get_data_paths, Experiment
 
 from distributed_train import distributed_train, partition_dataset
 from network import Network
@@ -40,6 +40,7 @@ if __name__ == "__main__":
     torch.manual_seed(args.seed)
 
     model = Network()
+    experiment = Experiment()
 
     data_dir = os.path.join(list(get_data_paths().values())[0], 'pytorch', 'mnist')
 
@@ -50,7 +51,8 @@ if __name__ == "__main__":
     num_batches = ceil(len(train_set.dataset) / float(bsz))
     logging.info('Start training ...')
     for epoch in range(1, args.epochs + 1):
-        distributed_train(model=model,
+        distributed_train(experiment=experiment,
+                          model=model,
                           train_set=train_set,
                           epoch=epoch,
                           optimizer=optimizer,

@@ -9,8 +9,6 @@ import torch.nn.functional as F
 from torch.autograd import Variable
 from torchvision import datasets, transforms
 
-from polyaxon_helper import send_metrics
-
 logging.basicConfig(level=logging.INFO)
 
 
@@ -75,7 +73,7 @@ def average_gradients(model):
         param.grad.data /= size
 
 
-def distributed_train(model, train_set, epoch, optimizer, rank, num_batches, log_interval):
+def distributed_train(experiment, model, train_set, epoch, optimizer, rank, num_batches, log_interval):
     """ Distributed Synchronous SGD Example """
     epoch_loss = 0.0
     train_dataset = [d for d in train_set]
@@ -98,4 +96,4 @@ def distributed_train(model, train_set, epoch, optimizer, rank, num_batches, log
                     loss.data[0])
             )
     logging.info('Rank {}, epoch: {}, loss: {}'.format(rank, epoch, epoch_loss / num_batches))
-    send_metrics(loss=epoch_loss / num_batches)
+    experiment.log_metrics(loss=epoch_loss / num_batches)

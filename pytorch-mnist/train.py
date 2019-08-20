@@ -8,7 +8,7 @@ import torch.nn.functional as F
 from torchvision import datasets, transforms
 from torch.autograd import Variable
 
-from polyaxon_helper import send_metrics, get_outputs_path
+from polyaxon_client.tracking import Experiment, get_outputs_path
 
 logging.basicConfig(level=logging.INFO)
 
@@ -16,7 +16,7 @@ logging.basicConfig(level=logging.INFO)
 def get_train_loader(data_dir, batch_size, cuda):
     kwargs = {'num_workers': 1, 'pin_memory': True} if cuda else {}
     train_loader = torch.utils.data.DataLoader(
-        datasets.MNIST(data_dir, train=True, download=True,
+        datasets.MNIST(data_dir, train=True, download=False,
                        transform=transforms.Compose([
                            transforms.ToTensor(),
                            transforms.Normalize((0.1307,), (0.3081,))
@@ -55,20 +55,19 @@ def train(model, train_loader, epoch, cuda, optimizer, log_interval):
                     batch_idx * len(data),
                     len(train_loader.dataset),
                     100. * batch_idx / len(train_loader),
-                    loss.data[0])
+                    loss.item())
             )
 
-
-def test(model, test_loader, cuda):
+def test(experiment, model, test_loader, cuda):
     model.eval()
     test_loss = 0
     correct = 0
     for data, target in test_loader:
         if cuda:
             data, target = data.cuda(), target.cuda()
-        data, target = Variable(data, volatile=True), Variable(target)
+        data, target = Variable(data, requires_grad=False), Variable(target)
         output = model(data)
-        test_loss += F.nll_loss(output, target, size_average=False).data[0]  # sum up batch loss
+        test_loss += F.nll_loss(output, target, size_average=False).item()  # sum up batch loss
         pred = output.data.max(1, keepdim=True)[1]  # get the index of the max log-probability
         correct += pred.eq(target.data.view_as(pred)).cpu().sum()
 
@@ -84,5 +83,5 @@ def test(model, test_loader, cuda):
     output_path = get_outputs_path()
     model_path = os.path.join(output_path, "model.dat")
     torch.save(model.state_dict(), model_path)
-    
-    send_metrics(loss=test_loss.item(), accuracy=accuracy.item())
+
+    experiment.log_metrics(loss=test_loss, accuracy=accuracy.item())

@@ -7,7 +7,8 @@ import os
 import torch
 import torch.optim as optim
 
-from polyaxon_helper import get_data_paths
+from polyaxon_client.tracking import get_data_paths, Experiment
+from polyaxon_client import settings
 
 from network import Network
 from train import train, test, get_test_loader, get_train_loader
@@ -43,7 +44,11 @@ if __name__ == '__main__':
     if args.cuda:
         model.cuda()
 
-    data_dir = os.path.join(list(get_data_paths().values())[0], 'pytorch', 'mnist')
+    if settings.IN_CLUSTER:
+        data_dir = get_data_paths()['data']
+    else:
+        data_dir = '/tmp/plx/data'
+    experiment = Experiment()
 
     logging.info('Downloading data ...')
     train_loader = get_train_loader(data_dir, args.batch_size, args.cuda)
@@ -57,4 +62,7 @@ if __name__ == '__main__':
               cuda=args.cuda,
               optimizer=optimizer,
               log_interval=args.log_interval)
-        test(model=model, test_loader=test_loader, cuda=args.cuda)
+        test(experiment=experiment,
+             model=model,
+             test_loader=test_loader,
+             cuda=args.cuda)
