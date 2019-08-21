@@ -25,5 +25,4 @@ run:
                                  --test-batch-size={{ batch_size_test }} \
                                  --epochs={{ epochs }} \
                                  --lr={{ lr }} \
-                                 --momentum={{ momentum }} \
-                                 --epochs={{ epochs }}
+                                 --momentum={{ momentum }}

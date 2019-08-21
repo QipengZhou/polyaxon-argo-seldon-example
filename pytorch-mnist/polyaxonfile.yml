@@ -14,12 +14,11 @@ declarations:
 build:
  image: docker.dm-ai.cn/mlc/pytorch:1.1-cuda10.0-cudnn7-py36
  build_steps:
-   - pip install --no-cache-dir -U polyaxon-client==0.5.3
+   - pip3 install --no-cache-dir -U polyaxon-client==0.5.3
 
 run:
   cmd: python3 run.py  --batch-size={{ batch_size_train }} \
                        --test-batch-size={{ batch_size_test }} \
                        --epochs={{ epochs }} \
                        --lr={{ lr }} \
-                       --momentum={{ momentum }} \
-                       --epochs={{ epochs }}
+                       --momentum={{ momentum }}

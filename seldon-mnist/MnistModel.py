@@ -6,7 +6,9 @@ class MnistModel(object):
     
     def __init__(self):
         self.model = Network()
-        self.model.load_state_dict(torch.load("./model.dat"))
+        device = 'gpu' if torch.cuda.is_available() else 'cpu'
+        self.model.load_state_dict(
+            torch.load("./model.dat", map_location=device))
 
     def predict(self, X, feature_names):
         tensor = torch.from_numpy(X).view(-1, 28, 28)

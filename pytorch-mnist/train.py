@@ -69,7 +69,7 @@ def test(experiment, model, test_loader, cuda):
         output = model(data)
         test_loss += F.nll_loss(output, target, size_average=False).item()  # sum up batch loss
         pred = output.data.max(1, keepdim=True)[1]  # get the index of the max log-probability
-        correct += pred.eq(target.data.view_as(pred)).cpu().sum()
+        correct += pred.eq(target.data.view_as(pred)).cpu().sum().item()
 
     test_loss /= len(test_loader.dataset)
     accuracy = correct / len(test_loader.dataset)
@@ -84,4 +84,4 @@ def test(experiment, model, test_loader, cuda):
     model_path = os.path.join(output_path, "model.dat")
     torch.save(model.state_dict(), model_path)
 
-    experiment.log_metrics(loss=test_loss, accuracy=accuracy.item())
+    experiment.log_metrics(loss=test_loss, accuracy=accuracy)

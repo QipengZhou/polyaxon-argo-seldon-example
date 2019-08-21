@@ -4,15 +4,15 @@ metadata:
   name: mnist
   labels:
     app: seldon
-  namespace: seldon
+  namespace: seldon-system
 spec:
   name: mnist
   predictors:
   - componentSpecs:
     - spec:
         containers:
-        - image: danielfrg/seldon-mnist:0.2
-          imagePullPolicy: Always
+        - image: docker.dm-ai.cn/mlc/seldon-mnist:0.1
+          imagePullPolicy: IfNotPresent
           name: classifier
     graph:
       endpoint:
